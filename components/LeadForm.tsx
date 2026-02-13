@@ -1,6 +1,4 @@
 'use client'
-cat > components/LeadForm.tsx << 'EOF'
-'use client'
 
 import { useState } from 'react'
 import { supabase } from '@/lib/supabase'
