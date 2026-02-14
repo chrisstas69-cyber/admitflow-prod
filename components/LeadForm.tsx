@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { supabase } from '@/lib/supabase'
 
 export default function LeadForm() {
   const [loading, setLoading] = useState(false)
@@ -32,19 +31,23 @@ export default function LeadForm() {
     }
 
     try {
-      const { error: insertError } = await supabase
-        .from('leads')
-        .insert([
-          {
-            full_name: formData.full_name,
-            email: formData.email,
-            phone: formData.phone,
-            message: formData.message,
-            source: 'web-form',
-          },
-        ])
+      const res = await fetch('/api/submit-lead', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          full_name: formData.full_name,
+          email: formData.email,
+          phone: formData.phone,
+          message: formData.message,
+          source: 'web-form',
+        }),
+      })
+      const json = await res.json()
 
-      if (insertError) throw insertError
+      if (!res.ok) {
+        const msg = json.details ? `${json.error}: ${json.details}` : (json.error || 'Failed to submit form')
+        throw new Error(msg)
+      }
 
       setSuccess(true)
       setFormData({ full_name: '', email: '', phone: '', message: '' })
